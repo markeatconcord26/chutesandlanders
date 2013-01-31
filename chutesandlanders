@@ -1,0 +1,300 @@
+/* ****************************************************************** */
+/*Programmer: Mark Ellison                                            */
+/*Due Date: Feb 1 2013                                                */
+/*Machine: Mac                                                        */
+/*OS: Windows XP                                                      */
+/*Compiler:wx 2.8 using Code::Blocks                                  */
+/*Purpose: Chutes and Ladders                                         */
+/* ****************************************************************** */
+
+#include <iostream>
+#include <string>
+#include <windows.h>
+#include <stdlib.h>
+#include <ctime>
+
+using namespace std;
+
+//Chutes and Ladders class: Holds all our functions that are going to be
+//operated on both player postions.
+class ChutesAndLadders
+{
+    public:
+        ChutesAndLadders();
+        void Introduction();
+        void PrintOut();
+        void PrintOutSetUp(int,int);
+        void PrintOutPattern(int);
+        void PrintOutColors();
+        void Move();
+        int DiceRoll();
+        void IncrementTurn();
+        bool AnyOneWin();
+        void WinAjustment();
+        int ShowOnePlayer();
+        void CheckSnakes(int[],int[]);
+        void CheckLadders(int [],int[]);
+    private:
+        int Turn;
+        int Player1;
+        int Player2;
+};
+
+//Main Function: The main functions duty is to call on the function that are
+//needed to perform chutes and ladders. It runs a win loop until someone is pass or on 99.
+//Then tells the User(s) who won.
+int main()
+{
+    int LadderStart[7]={4,9,21,36,28,51,71};
+    int LadderFin [7]={14,31,42,44,84,67,91};
+    int SnakesStart[8] ={16,48,49,56,64,62,87,93,};
+    int SnakesFin[8] ={6,11,20,53,60,19,24,73};
+    srand(time(0));
+    ChutesAndLadders Mark;
+    Mark.Introduction();
+    while(Mark.AnyOneWin())
+    {
+        system("cls");
+        Mark.PrintOut();
+        Mark.Move();
+        Mark.CheckLadders(LadderStart,LadderFin);
+        Mark.CheckSnakes(SnakesStart,SnakesFin);
+        Mark.IncrementTurn();
+    }
+    Mark.WinAjustment();
+    Mark.PrintOut();
+    Mark.PrintOutSetUp(0,34);
+    if(Mark.ShowOnePlayer()>=99)
+    {
+        cout<<"Player 1 won!!!"<<endl;
+    }
+    else
+    {
+        cout<<"Player 2 won!!!"<<endl;
+    }
+    Mark.PrintOutSetUp(0,36);
+
+    return 0;
+}
+
+//Constructor Function: Helps begin the game by make the first
+//postion for Player 1 a then flipping the turn toward Player 2.
+ChutesAndLadders::ChutesAndLadders()
+{
+    Player1=(rand()%6)+1;
+    Player2=0;
+    Turn=2;
+}
+
+//Introduction Function: Tells the user about what is going on.
+//The game is to simulate Chutes and Ladders.
+void ChutesAndLadders::Introduction()
+{
+    cout<<"Hello there. This is Mark Ellison Chutes"<<endl;
+    cout<<"and Ladders.Here is what is going to happen:"<<endl;
+    cout<<"There will be two pieces that are going to race to"<<endl;
+    cout<<"The 100th square on top of the screen."<<endl;
+    cout<<"Player1 is the + symbol"<<endl;
+    cout<<"Player 2 is the x symbol"<<endl;
+    cout<<"If both Players are on the same sqare.The you'll see."<<endl;
+    cout<<"a * int the sqare."<<endl;
+    cout<<"There will be sqares where if players land on"<<endl;
+    cout<<"them,they will be rewarded by advancing even further."<<endl;
+    cout<<"Some sqares will punish the player if they are landed on."<<endl;
+    cout<<"Player 1 will start the game."<<endl;
+    system("pause");
+}
+
+//IncrementTurn Function: Increments the Turn so
+//it helps determine which player goes. Called form Main().
+void ChutesAndLadders::IncrementTurn()
+{
+    Turn++;
+}
+
+//DiceRoll Function: Simulates a dice being rolled.
+//Will determine the next player move.
+int ChutesAndLadders::DiceRoll()
+{
+    return (rand()%6)+1;
+}
+
+//Main PrintOut Functions: Prints out the postions of players.
+//Othe Functions in this Function are call from other places.
+//But the Function is called right before a move and after.
+void ChutesAndLadders::PrintOut()
+{
+    int x=6;
+    int y=30;
+    for(int i=0;i<100;i++)
+    {
+        PrintOutSetUp(x,y);
+        PrintOutColors();
+        PrintOutPattern(i);
+        if(x>30)
+        {
+            x=3;
+            y=y-3;
+        }
+        x=x+3;
+    }
+}
+
+//PrintOutSetUp Function: Help adjust the cursor.
+//Call when making room for the board and comments.
+//Since most "Snakes and Ladder" games start at the
+//bottom, the cursor needs to be moved downward first.
+void ChutesAndLadders::PrintOutSetUp(int x,int y)
+{
+     HANDLE hStdout;
+    CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
+    hStdout=GetStdHandle(STD_OUTPUT_HANDLE);
+    GetConsoleScreenBufferInfo(hStdout, &csbiInfo);
+    csbiInfo.dwCursorPosition.X=x;
+    csbiInfo.dwCursorPosition.Y=y;
+    SetConsoleCursorPosition(hStdout, csbiInfo.dwCursorPosition);
+}
+
+//PrintOutColors Funtcion: muniplates the multi-colored
+//Enviroment. User fun function.
+void ChutesAndLadders::PrintOutColors()
+{
+    int randomstuff;
+    int color [6]={1,2,5,12,14,3};
+    HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+    randomstuff=(rand()%6)+1;
+    SetConsoleTextAttribute(console, color[randomstuff]);
+}
+
+//PrintOutPattern: Depending on where the player(s) is/are
+//this function prints out the loctation of them.
+void ChutesAndLadders::PrintOutPattern(int index)
+{
+    if((index!=Player1)&&(index!=Player2))
+    {
+        cout<<"| |";
+    }
+    else
+    {
+        if((index==Player1)&&(index==Player2))
+        {
+            cout<<"|*|";
+        }
+        if((index==Player1)&&(index!=Player2))
+        {
+            cout<<"|+|";
+        }
+        if((index!=Player1)&&(index==Player2))
+        {
+            cout<<"|x|";
+        }
+    }
+}
+
+//Move Function: This function simulates a move by
+//determinging which player goes and then get a
+//random number and adds it to their postion.
+void ChutesAndLadders::Move()
+{
+    int Roll;
+    if(Turn%2!=0)
+    {
+        Roll=DiceRoll();
+        PrintOutSetUp(0,33);
+        cout<<"Player 2 has rolled a: "<<Roll<<endl;
+        system("pause");
+        Player2=Player2+Roll;
+    }
+    else
+    {
+        Roll=DiceRoll();
+        PrintOutSetUp(0,33);
+        cout<<"Player 1 has rolled a: "<<Roll<<endl;
+        system("pause");
+        Player1=Player1+Roll;
+    }
+}
+
+//AnyOneWin Function: Tells the main function if any player
+//has not reached 99 or beyound. If not it returns a true.
+bool ChutesAndLadders::AnyOneWin()
+{
+    return ((Player1<99)&&(Player2<99));
+}
+
+//ShowOnePlayer Function: Helps the main function to
+//print who won by return Players 1 postion.
+int ChutesAndLadders::ShowOnePlayer()
+{
+    return Player1;
+}
+
+//WinAjustment Function: Manipulates the Player number if they go over
+//99. Needed when printing out the postions of the players.
+void ChutesAndLadders::WinAjustment()
+{
+    if(Player1>99)
+    {
+        Player1=99;
+    }
+    else
+    {
+        Player2=99;
+    }
+}
+
+//CheckLadders: Helps check if the players postion
+//corresponds with number in the ladder arrays.
+//Moves player to end point if they do.
+void ChutesAndLadders::CheckLadders(int LadderStart [],int LadderFin[])
+{
+    for(int i=0;i<7;i++)
+    {
+        if(Player1==LadderStart[i])
+        {
+            Player1=LadderFin[i];
+            system("cls");
+            PrintOut();
+            PrintOutSetUp(0,35);
+            cout<<"Player 1 is claimbing a ladder!"<<endl;
+            system("pause");
+        }
+        if(Player2==LadderStart[i])
+        {
+            Player1=LadderFin[i];
+            system("cls");
+            PrintOut();
+            PrintOutSetUp(0,35);
+            cout<<"Player 2 is claimbing a ladder!"<<endl;
+            system("pause");
+        }
+    }
+}
+
+//CheckSnakes: Helps check if the players postion
+//corresponds with number in the Snakes arrays.
+//Moves player to end point if they do.
+void ChutesAndLadders::CheckSnakes(int SnakesStart [],int SnakesFin [])
+{
+    for(int i=0;i<8;i++)
+    {
+        if(Player1==SnakesStart[i])
+        {
+            Player1=SnakesFin[i];
+            system("cls");
+            PrintOut();
+            PrintOutSetUp(0,35);
+            cout<<"NO--Player 1 was bitten by a snake!"<<endl;
+            system("pause");
+        }
+        if(Player2==SnakesStart[i])
+        {
+            Player1=SnakesFin[i];
+            system("cls");
+            PrintOut();
+            PrintOutSetUp(0,35);
+            cout<<"NO--Player 2 was bitten by a snake!"<<endl;
+            system("pause");
+        }
+    }
+}
