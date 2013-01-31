@@ -1,0 +1,143 @@
+#include <iostream>
+#include <string>
+#include <windows.h>
+#include <stdlib.h>
+#include <ctime>
+
+using namespace std;
+
+void PrintOut(int Player1,int Player2);
+
+void PrintOutSetUp(int x,int y);
+
+void PrintOutPattern(int Player1,int Player2,int index);
+
+void PrintOutColors();
+
+void Move(int Turn,int& Player1,int& Player2);
+
+int RollDice();
+
+int main()
+{
+    srand(time(0));
+    char arr[100];
+    int LadderStart[8]={4,9,21,36,28,51,71};
+    int LadderFin[8]={14,31,42,44,84,67,91};
+    int SnakesStart [8]={16,48,49,56,64,62,87,93,};
+    int SnakesFin [8]={6,11,20,53,60,19,24,73};
+    int Player1,Player2;
+    Player1=(rand()%6)+1;
+    Player2=0;
+    int Turn=0;
+    PrintOutSetUp(0,32);
+    cout<<"Player1 is the + symbol"<<endl;
+    cout<<"Player 2 is the x symbol"<<endl;
+    cout<<"Player 1 has already rolled a :"<<Player1<<endl;
+    while((Player1<99)&&(Player2<99))
+    {
+        system("cls");
+        PrintOut(Player1,Player2);
+        Move(Turn,Player1,Player2);
+        Turn++;
+    }
+    PrintOut(Player1,Player2);
+    PrintOutSetUp(0,32);
+    if(Player1>=99)
+    {
+        cout<<"Player 1 won!!!"<<endl;
+    }
+    else
+    {
+        cout<<"Player 2 won!!!"<<endl;
+    }
+
+    return 0;
+}
+
+void PrintOut(int Player1,int Player2)
+{
+    int x=6;
+    int y=30;
+    for(int i=0;i<100;i++)
+    {
+        PrintOutSetUp(x,y);
+        PrintOutColors();
+        PrintOutPattern(Player1,Player2,i);
+        if(x>30)
+        {
+            x=3;
+            y=y-3;
+        }
+        x=x+3;
+    }
+}
+
+void PrintOutSetUp(int x,int y)
+{
+    HANDLE hStdout;
+    CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
+    hStdout=GetStdHandle(STD_OUTPUT_HANDLE);
+    GetConsoleScreenBufferInfo(hStdout, &csbiInfo);
+    csbiInfo.dwCursorPosition.X=x;
+    csbiInfo.dwCursorPosition.Y=y;
+    SetConsoleCursorPosition(hStdout, csbiInfo.dwCursorPosition);
+}
+
+void PrintOutPattern(int Player1,int Player2,int index)
+{
+    if((index!=Player1)&&(index!=Player2))
+    {
+        cout<<"| |";
+    }
+    else
+    {
+        if((index==Player1)&&(index==Player2))
+        {
+            cout<<"|*|";
+        }
+        if((index==Player1)&&(index!=Player2))
+        {
+            cout<<"|+|";
+        }
+        if((index!=Player1)&&(index==Player2))
+        {
+            cout<<"|x|";
+        }
+    }
+}
+
+void PrintOutColors()
+{
+    int randomstuff;
+    int color [6]={1,2,5,12,14,3};
+    HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+    randomstuff=(rand()%6)+1;
+    SetConsoleTextAttribute(console, color[randomstuff]);
+}
+
+int  RollDice()
+{
+    return (rand()%6)+1;
+}
+
+void Move(int Turn,int& Player1,int& Player2)
+{
+    int Roll;
+    if(Turn%2!=0)
+    {
+        Roll=RollDice();
+        PrintOutSetUp(0,33);
+        cout<<"Player 2 has rolled a: "<<Roll<<endl;
+        system("pause");
+        Player2=Player2+Roll;
+    }
+    else
+    {
+        Roll=RollDice();
+        PrintOutSetUp(0,33);
+        cout<<"Player 1 has rolled a: "<<Roll<<endl;
+        system("pause");
+        Player1=Player1+Roll;
+    }
+}
